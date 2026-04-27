@@ -1,1 +1,1 @@
-# nhap-mon-AI
+# Game cờ Caro AI
