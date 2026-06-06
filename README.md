@@ -1,1 +1,2 @@
-# Game cờ Caro AI
+# Caro-AI
+Play Caro Game with an AI

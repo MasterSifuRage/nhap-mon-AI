@@ -1,5 +1,7 @@
 package caro.bean;
+import caro.bo.ai.AIConfig;
 import caro.dao.SettingDao;
+import caro.values.Value;
 
 import java.awt.Color;
 public class Setting {
@@ -8,14 +10,20 @@ public class Setting {
     private Color xColor;
     private Color oColor;
     private int mode;
+    private int aiModel;
 
     public Setting(Color backgroundColor, Color cellColor, Color xColor, Color oColor, int mode) {
+        this(backgroundColor, cellColor, xColor, oColor, mode, Value.DEFAULT_AI_MODEL);
+    }
+
+    public Setting(Color backgroundColor, Color cellColor, Color xColor, Color oColor, int mode, int aiModel) {
         super();
         this.backgroundColor = backgroundColor;
         this.cellColor = cellColor;
         this.xColor = xColor;
         this.oColor = oColor;
         this.mode = mode;
+        this.aiModel = aiModel;
     }
 
     public Color getBackgroundColor() {
@@ -83,5 +91,20 @@ public class Setting {
         SettingDao.SaveSettingInfo(this);
     }
 
+    public int getAiModel() {
+        return aiModel;
+    }
 
+    public AIConfig getAiConfig() {
+        return AIConfig.fromCode(aiModel);
+    }
+
+    public void setAiModel(int aiModel) {
+        this.aiModel = aiModel;
+        SettingDao.SaveSettingInfo(this);
+    }
+
+    public String getAiModelDisplayName() {
+        return getAiConfig().getDisplayName();
+    }
 }

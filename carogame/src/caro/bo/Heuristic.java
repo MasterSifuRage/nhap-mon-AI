@@ -347,8 +347,14 @@ public class Heuristic {
         int[] difference = {0, 2, 8, 32, 128, 512}; // chênh lệch theo từng cấp độ dài so với phần tử lớn nhất
 
         ArrayList<EvalCell> list = new ArrayList<EvalCell>(); // danh sách điểm được sắp xếp giảm dần
+        if (maxValueList[size - 1] <= 0) {
+            return list;
+        }
         list.add(new EvalCell(maxCellList[size-1], maxValueList[size-1])); // add vào phần tử có điểm lớn nhất
         for(int i = size-2; i>=0; i--) { // add vào các phần tử còn lại phù hợp điều kiện
+            if(maxValueList[i] <= 0) {
+                break;
+            }
             if(maxValueList[size-1] - maxValueList[i] <= difference[maxLength]) { // chỉ chấp nhận chênh lệch so với pt lớn nhất trong khoảng quy định
                 list.add(new EvalCell(maxCellList[i], maxValueList[i]));
             }

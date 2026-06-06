@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import caro.bean.RoundedBorder;
 import caro.bean.Setting;
 import caro.bo.CaroAI;
+import caro.bo.ai.AIConfig;
 import caro.dao.SettingDao;
 import caro.values.Value;
 
@@ -41,6 +42,7 @@ public class App extends JFrame implements MouseListener{
     private JLabel aiClickedCell; // cell được AI click chọn
     private JLabel lblUserScore; // điểm của User
     private JLabel lblAIScore; // điểm của AI
+    private JLabel lblCurrentAIModel; // tên mô hình AI đang chọn
 
     private CaroAI caro;
     private Setting setting;
@@ -51,6 +53,27 @@ public class App extends JFrame implements MouseListener{
     private String currentPath; // đường dẫn hiện tại của project
 
     private final ButtonGroup buttonGroup = new ButtonGroup();
+
+    private static final String UI_FONT = "Tahoma";
+    private static final Font FONT_TITLE = new Font(UI_FONT, Font.BOLD, 36);
+    private static final Font FONT_SECTION = new Font(UI_FONT, Font.BOLD, 16);
+    private static final Font FONT_BUTTON = new Font(UI_FONT, Font.BOLD, 12);
+    private static final Font FONT_RADIO = new Font(UI_FONT, Font.PLAIN, 14);
+    private static final Font FONT_SCORE = new Font(UI_FONT, Font.BOLD, 11);
+    private static final Font FONT_CELL = new Font(UI_FONT, Font.BOLD, Value.TEXT_CELL_SIZE);
+    private static final Color COLOR_BTN_FG = new Color(85, 107, 47);
+    private static final Color COLOR_BTN_BG = new Color(255, 20, 147);
+    private static final Color COLOR_SECTION = new Color(0, 0, 139);
+    private static final Color COLOR_RADIO = new Color(107, 142, 35);
+
+    private void styleSidebarButton(JButton button) {
+        button.setOpaque(false);
+        button.setForeground(COLOR_BTN_FG);
+        button.setFont(FONT_BUTTON);
+        button.setBorder(new RoundedBorder(10));
+        button.setBackground(COLOR_BTN_BG);
+        button.setFocusPainted(false);
+    }
 
 
      //Launch the application.
@@ -72,8 +95,15 @@ public class App extends JFrame implements MouseListener{
      // Tạo game mới, clear màn chơi cũ
 
     public void newGame() {
-        setting = SettingDao.LoadSettingInfo();
-        caro = new CaroAI(setting.getMode());
+        newGame(true);
+    }
+
+    private void newGame(boolean reloadSetting) {
+        if (reloadSetting) {
+            setting = SettingDao.LoadSettingInfo();
+        }
+        caro = new CaroAI(setting.getMode(), setting.getAiConfig());
+        updateAIModelLabel();
         userClickedCell = null;
         aiClickedCell = null;
         for (int i = 0; i < Value.SIZE; i++) {
@@ -126,7 +156,7 @@ public class App extends JFrame implements MouseListener{
 
 
         setting = SettingDao.LoadSettingInfo();
-        caro = new CaroAI(setting.getMode()); // khởi tạo CaroAI
+        caro = new CaroAI(setting.getMode(), setting.getAiConfig()); // khởi tạo CaroAI
         cellBorder = new LineBorder(Color.black, 1); // tạo border cho mỗi cell trong ma trận
 
         /*------------------Tạo các đối tượng------------------*/
@@ -151,7 +181,7 @@ public class App extends JFrame implements MouseListener{
                 cell[i][j].setSize(Value.CELL_WIDTH, Value.CELL_WIDTH); // kích cỡ mỗi cell
                 cell[i][j].setOpaque(true);
                 cell[i][j].setBorder(cellBorder);
-                cell[i][j].setFont(new Font("Comic Sans MS", Font.BOLD, TEXT_CELL_SIZE));
+                cell[i][j].setFont(FONT_CELL);
                 cell[i][j].setBackground(setting.getCellColor());
                 cell[i][j].setForeground(setting.getxColor());
                 cell[i][j].setHorizontalAlignment(SwingConstants.CENTER); // căn giữa chữ
@@ -171,14 +201,14 @@ public class App extends JFrame implements MouseListener{
 
         JLabel lbltitle = new JLabel("GAME CARO");
         lbltitle.setHorizontalAlignment(SwingConstants.CENTER);
-        lbltitle.setFont(new Font("Comic Sans MS", Font.BOLD, 40));
+        lbltitle.setFont(FONT_TITLE);
         lbltitle.setBounds(10, 11, 254, 50);
         view.add(lbltitle);
 
         JLabel lblMode = new JLabel("Mode:");
         lblMode.setHorizontalAlignment(SwingConstants.LEFT);
-        lblMode.setForeground(new Color(0, 0, 139));
-        lblMode.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
+        lblMode.setForeground(COLOR_SECTION);
+        lblMode.setFont(FONT_SECTION);
         lblMode.setBounds(10, 162, 254, 20);
         view.add(lblMode);
 
@@ -189,12 +219,8 @@ public class App extends JFrame implements MouseListener{
                 if(result == JOptionPane.YES_OPTION) newGame();
             }
         });
-        btnNewGame.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
-        btnNewGame.setBounds(30, 390, 89, 37);
-        btnNewGame.setBackground(new Color(255, 20, 147));
-        btnNewGame.setForeground(new Color(85, 107, 47));
-        btnNewGame.setOpaque(false);
-        btnNewGame.setBorder(new RoundedBorder(10));
+        btnNewGame.setBounds(30, 448, 89, 37);
+        styleSidebarButton(btnNewGame);
         view.add(btnNewGame);
 
         JButton btnExitGame = new JButton("Exit Game");
@@ -204,12 +230,8 @@ public class App extends JFrame implements MouseListener{
                 if(result == JOptionPane.YES_OPTION) System.exit(0); // thoát game
             }
         });
-        btnExitGame.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
-        btnExitGame.setOpaque(false);
-        btnExitGame.setForeground(new Color(85, 107, 47));
-        btnExitGame.setBorder(new RoundedBorder(10));
-        btnExitGame.setBackground(new Color(255, 20, 147));
-        btnExitGame.setBounds(156, 390, 89, 37);
+        btnExitGame.setBounds(156, 448, 89, 37);
+        styleSidebarButton(btnExitGame);
         view.add(btnExitGame);
 
         JRadioButton rdbtnUserPlaysFirst = new JRadioButton("User plays first");
@@ -217,7 +239,7 @@ public class App extends JFrame implements MouseListener{
         if(setting.getMode() == 0) rdbtnUserPlaysFirst.setSelected(true);
         else rdbtnAiPlaysFirst.setSelected(true);
 
-        rdbtnUserPlaysFirst.setForeground(new Color(107, 142, 35));
+        rdbtnUserPlaysFirst.setForeground(COLOR_RADIO);
         rdbtnUserPlaysFirst.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if(setting.getMode() == 1) {
@@ -233,13 +255,13 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        rdbtnUserPlaysFirst.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        rdbtnUserPlaysFirst.setFont(FONT_RADIO);
         buttonGroup.add(rdbtnUserPlaysFirst);
         rdbtnUserPlaysFirst.setOpaque(false);
         rdbtnUserPlaysFirst.setBounds(26, 192, 232, 23);
         view.add(rdbtnUserPlaysFirst);
 
-        rdbtnAiPlaysFirst.setForeground(new Color(107, 142, 35));
+        rdbtnAiPlaysFirst.setForeground(COLOR_RADIO);
         rdbtnAiPlaysFirst.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if(setting.getMode() == 0) {
@@ -255,23 +277,47 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        rdbtnAiPlaysFirst.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        rdbtnAiPlaysFirst.setFont(FONT_RADIO);
         buttonGroup.add(rdbtnAiPlaysFirst);
         rdbtnAiPlaysFirst.setOpaque(false);
         rdbtnAiPlaysFirst.setBounds(26, 218, 232, 23);
         view.add(rdbtnAiPlaysFirst);
 
+        JLabel lblAIModel = new JLabel("AI Model:");
+        lblAIModel.setHorizontalAlignment(SwingConstants.LEFT);
+        lblAIModel.setForeground(COLOR_SECTION);
+        lblAIModel.setFont(FONT_SECTION);
+        lblAIModel.setBounds(10, 244, 85, 20);
+        view.add(lblAIModel);
+
+        lblCurrentAIModel = new JLabel(setting.getAiModelDisplayName());
+        lblCurrentAIModel.setHorizontalAlignment(SwingConstants.LEFT);
+        lblCurrentAIModel.setForeground(COLOR_RADIO);
+        lblCurrentAIModel.setFont(FONT_RADIO);
+        lblCurrentAIModel.setBounds(95, 246, 165, 20);
+        view.add(lblCurrentAIModel);
+
+        JButton btnSelectAIModel = new JButton("Chọn mô hình AI");
+        btnSelectAIModel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showAIModelDialog();
+            }
+        });
+        btnSelectAIModel.setBounds(30, 268, 215, 28);
+        styleSidebarButton(btnSelectAIModel);
+        view.add(btnSelectAIModel);
+
         JLabel lblSetting = new JLabel("Color:");
         lblSetting.setHorizontalAlignment(SwingConstants.LEFT);
-        lblSetting.setForeground(new Color(0, 0, 139));
-        lblSetting.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
-        lblSetting.setBounds(10, 254, 254, 20);
+        lblSetting.setForeground(COLOR_SECTION);
+        lblSetting.setFont(FONT_SECTION);
+        lblSetting.setBounds(10, 312, 254, 20);
         view.add(lblSetting);
 
         JSeparator separator = new JSeparator();
         separator.setBackground(Color.GRAY);
         separator.setForeground(Color.DARK_GRAY);
-        separator.setBounds(10, 369, 254, 2);
+        separator.setBounds(10, 427, 254, 2);
         view.add(separator);
 
         JSeparator separator_1 = new JSeparator();
@@ -282,28 +328,28 @@ public class App extends JFrame implements MouseListener{
 
         JLabel lblUser = new JLabel("USER");
         lblUser.setForeground(new Color(220, 20, 60));
-        lblUser.setFont(new Font("Comic Sans MS", Font.BOLD, 16));
+        lblUser.setFont(FONT_SECTION);
         lblUser.setHorizontalAlignment(SwingConstants.CENTER);
         lblUser.setBounds(10, 91, 122, 20);
         view.add(lblUser);
 
         JLabel lblAI = new JLabel("AI");
         lblAI.setForeground(new Color(0, 139, 139));
-        lblAI.setFont(new Font("Comic Sans MS", Font.BOLD, 16));
+        lblAI.setFont(FONT_SECTION);
         lblAI.setHorizontalAlignment(SwingConstants.CENTER);
         lblAI.setBounds(142, 91, 122, 20);
         view.add(lblAI);
 
         lblUserScore = new JLabel("0");
         lblUserScore.setForeground(new Color(65, 105, 225));
-        lblUserScore.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
+        lblUserScore.setFont(FONT_SCORE);
         lblUserScore.setHorizontalAlignment(SwingConstants.CENTER);
         lblUserScore.setBounds(10, 122, 122, 20);
         view.add(lblUserScore);
 
         lblAIScore = new JLabel("0");
         lblAIScore.setForeground(new Color(0, 128, 0));
-        lblAIScore.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
+        lblAIScore.setFont(FONT_SCORE);
         lblAIScore.setHorizontalAlignment(SwingConstants.CENTER);
         lblAIScore.setBounds(142, 122, 122, 20);
         view.add(lblAIScore);
@@ -315,12 +361,8 @@ public class App extends JFrame implements MouseListener{
                 notification.show("Thông tin", "Thông Tin", Value.INFO_MESSAGE);
             }
         });
-        btnInfo.setOpaque(false);
-        btnInfo.setForeground(new Color(85, 107, 47));
-        btnInfo.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
-        btnInfo.setBorder(new RoundedBorder(10));
-        btnInfo.setBackground(new Color(255, 20, 147));
-        btnInfo.setBounds(156, 438, 89, 37);
+        btnInfo.setBounds(156, 496, 89, 37);
+        styleSidebarButton(btnInfo);
         view.add(btnInfo);
 
         JButton btnIntroduce = new JButton("Introduce");
@@ -330,12 +372,8 @@ public class App extends JFrame implements MouseListener{
                 notification.show("Thông tin", "Giới Thiệu", Value.INTRODUCE_MESSAGE);
             }
         });
-        btnIntroduce.setOpaque(false);
-        btnIntroduce.setForeground(new Color(85, 107, 47));
-        btnIntroduce.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
-        btnIntroduce.setBorder(new RoundedBorder(10));
-        btnIntroduce.setBackground(new Color(255, 20, 147));
-        btnIntroduce.setBounds(30, 438, 89, 37);
+        btnIntroduce.setBounds(30, 496, 89, 37);
+        styleSidebarButton(btnIntroduce);
         view.add(btnIntroduce);
 
         JButton btnXColor = new JButton("Màu X");
@@ -349,12 +387,8 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        btnXColor.setOpaque(false);
-        btnXColor.setForeground(new Color(85, 107, 47));
-        btnXColor.setFont(new Font("Tahoma", Font.BOLD, 12));
-        btnXColor.setBorder(new RoundedBorder(10));
-        btnXColor.setBackground(new Color(255, 20, 147));
-        btnXColor.setBounds(30, 289, 89, 28);
+        btnXColor.setBounds(30, 347, 89, 28);
+        styleSidebarButton(btnXColor);
         view.add(btnXColor);
 
         JButton btnBackgroundColor = new JButton("Màu Nền");
@@ -368,12 +402,8 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        btnBackgroundColor.setOpaque(false);
-        btnBackgroundColor.setForeground(new Color(85, 107, 47));
-        btnBackgroundColor.setFont(new Font("Tahoma", Font.BOLD, 12));
-        btnBackgroundColor.setBorder(new RoundedBorder(10));
-        btnBackgroundColor.setBackground(new Color(255, 20, 147));
-        btnBackgroundColor.setBounds(30, 328, 89, 28);
+        btnBackgroundColor.setBounds(30, 386, 89, 28);
+        styleSidebarButton(btnBackgroundColor);
         view.add(btnBackgroundColor);
 
         JButton btnOColor = new JButton("Màu O");
@@ -387,12 +417,8 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        btnOColor.setOpaque(false);
-        btnOColor.setForeground(new Color(85, 107, 47));
-        btnOColor.setFont(new Font("Tahoma", Font.BOLD, 12));
-        btnOColor.setBorder(new RoundedBorder(10));
-        btnOColor.setBackground(new Color(255, 20, 147));
-        btnOColor.setBounds(156, 289, 89, 28);
+        btnOColor.setBounds(156, 347, 89, 28);
+        styleSidebarButton(btnOColor);
         view.add(btnOColor);
 
         JButton btnCellColor = new JButton("Màu Ô");
@@ -406,15 +432,45 @@ public class App extends JFrame implements MouseListener{
                 }
             }
         });
-        btnCellColor.setOpaque(false);
-        btnCellColor.setForeground(new Color(85, 107, 47));
-        btnCellColor.setFont(new Font("Tahoma", Font.BOLD, 12));
-        btnCellColor.setBorder(new RoundedBorder(10));
-        btnCellColor.setBackground(new Color(255, 20, 147));
-        btnCellColor.setBounds(156, 328, 89, 28);
+        btnCellColor.setBounds(156, 386, 89, 28);
+        styleSidebarButton(btnCellColor);
         view.add(btnCellColor);
 
 
+    }
+
+    private void updateAIModelLabel() {
+        if (lblCurrentAIModel != null && setting != null) {
+            lblCurrentAIModel.setText(setting.getAiModelDisplayName());
+        }
+    }
+
+    private void showAIModelDialog() {
+        AIConfig current = setting.getAiConfig();
+        AIConfig selected = (AIConfig) JOptionPane.showInputDialog(
+                this,
+                "Chọn mô hình AI để chơi cùng:",
+                "Cài đặt mô hình AI",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                AIConfig.values(),
+                current
+        );
+
+        if (selected == null || selected == current) {
+            return;
+        }
+
+        int result = JOptionPane.showConfirmDialog(
+                this,
+                "Đổi sang \"" + selected.getDisplayName() + "\" và bắt đầu ván mới?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (result == JOptionPane.YES_OPTION) {
+            setting.setAiModel(selected.getCode());
+            newGame(false);
+        }
     }
 
 

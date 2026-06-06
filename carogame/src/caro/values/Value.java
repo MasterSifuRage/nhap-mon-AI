@@ -10,15 +10,15 @@ public class Value {
     public static final String INFO_MESSAGE =
             "Trường: Đại Học Khoa Học Huế\n"
                     + "Môn: Nhập Môn Trí Tuệ Nhân Tạo\n"
-                    + "Giảng viên: Đoàn Thị Hồng Phước\n"
-                    + "Đề tài: Game cờ caro sử dụng thuật toán cắt tỉa alpha beta\n"
+                    + "Giảng viên: Đặng Tuấn Linh\n"
+                    + "Đề tài: Game cờ caro sử dụng thuật toán 3 mô hình thuật toán (AI Greedy, AI Minimax, AI Minimax + Alpha-Beta)\n"
                     + "Thành viên thực hiện:\n"
-                    + " Hoàng Quốc Khánh\n"
-                    + " Đoàn Phú Thuận\n"
-                    + " Hồ Xuân Lâm\n"
-                    + " Nguyễn Minh Hiếu\n"
+                    + " Nguyễn Trung Kiên\n"
+                    + " Nguyễn Quang Vinh\n"
+                    + " Nguyễn Đức Toàn\n"
+                    + " Trần Đình Tuệ\n"
                     + "Nội dung:\n"
-                    + " Game cờ caro sử dụng thuật toán cắt tỉa alpha beta, bài tập nhóm môn nhập môn trí tuệ nhân tạo!";
+                    + " Game cờ caro sử dụng thuật toán 3 mô hình thuật toán (AI Greedy, AI Minimax, AI Minimax + Alpha-Beta), bài tập nhóm môn nhập môn trí tuệ nhân tạo!";
     public static final String INTRODUCE_MESSAGE =
             "Nguồn Gốc và Luật Chơi Cờ Caro"
                     + "\r\n"
@@ -105,7 +105,7 @@ public class Value {
                     + " Với một trò chơi sử dụng chủ yếu là kỹ năng logic thế này,"
                     + " cờ caro rất phù hợp với lứa tuổi học sinh."
                     + "\r\n"
-                    + "Nguồn bài viết: cothu.vn";
+                    + "Nguồn bài viết: xam.vn, vozer.vn";
 
     /**
      *  số hàng/số cột mặc định
@@ -164,4 +164,8 @@ public class Value {
      * số lượng lấy ra tối đa của danh sách các ô được lượng giá cao nhất
      */
     public static final int MAX_NUM_OF_HIGHEST_CELL_LIST = 8;
+    /**
+     * Mô hình AI mặc định: Minimax + Alpha-Beta
+     */
+    public static final int DEFAULT_AI_MODEL = 2;
 }
