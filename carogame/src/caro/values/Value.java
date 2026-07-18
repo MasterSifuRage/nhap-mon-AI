@@ -3,20 +3,17 @@ import java.awt.Color;
 
 /**
  * @author rianta9
- * Datecreate: 24 thg 4, 2020 17:30:05
+ * Datecreate: 27 thg 5, 2026
  */
 public class Value {
 
     public static final String INFO_MESSAGE =
-            "Trường: Đại Học Khoa Học Huế\n"
+            "Trường: Đại Học Bách Khoa Hà Nội\n"
                     + "Môn: Nhập Môn Trí Tuệ Nhân Tạo\n"
                     + "Giảng viên: Đặng Tuấn Linh\n"
                     + "Đề tài: Game cờ caro sử dụng thuật toán 3 mô hình thuật toán (AI Greedy, AI Minimax, AI Minimax + Alpha-Beta)\n"
-                    + "Thành viên thực hiện:\n"
+                    + "Người thực hiện:\n"
                     + " Nguyễn Trung Kiên\n"
-                    + " Nguyễn Quang Vinh\n"
-                    + " Nguyễn Đức Toàn\n"
-                    + " Trần Đình Tuệ\n"
                     + "Nội dung:\n"
                     + " Game cờ caro sử dụng thuật toán 3 mô hình thuật toán (AI Greedy, AI Minimax, AI Minimax + Alpha-Beta), bài tập nhóm môn nhập môn trí tuệ nhân tạo!";
     public static final String INTRODUCE_MESSAGE =
